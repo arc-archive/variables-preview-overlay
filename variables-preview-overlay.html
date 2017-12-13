@@ -16,7 +16,7 @@ the License.
 <link rel="import" href="../paper-styles/shadow.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-button/paper-button.html">
-
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <!--
 An element to display quick preview of variables values for selected environment.
 
@@ -121,7 +121,7 @@ Custom property | Description | Default
     <h2>Variables for [[environment]]</h2>
     <template is="dom-if" if="[[hasVariables]]">
       <ul class="list" aria-role="list">
-        <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled">
+        <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled" id="repeater">
           <li data-enabled$="[[item.enabled]]" aria-role="listitem">
             <span class="var-name">[[item.variable]]</span>
             <span class="var-value">[[item.value]]</span>
@@ -167,15 +167,26 @@ Custom property | Description | Default
     },
 
     attached: function() {
-      this.listen(window, 'variables-list-changed', '_envChanged');
+      this.listen(window, 'variables-list-changed', '_varsChanged');
+      this.listen(window, 'variable-deleted', '_varDeletedHandler');
+      this.listen(window, 'variable-updated', '_varUpdateHandler');
     },
 
     detached: function() {
-      this.unlisten(window, 'variables-list-changed', '_envChanged');
+      this.unlisten(window, 'variables-list-changed', '_varsChanged');
+      this.unlisten(window, 'variable-deleted', '_varDeletedHandler');
+      this.unlisten(window, 'variable-updated', '_varUpdateHandler');
     },
 
-    _envChanged: function(e) {
-      this.variables = e.detail.value;
+    _varsChanged: function(e) {
+      var eventVars = e.detail.value;
+      var vars;
+      if (eventVars && eventVars.length) {
+        vars = eventVars.map(function(item) {
+          return Object.assign({}, item);
+        });
+      }
+      this.set('variables', vars);
       this.environment = e.detail.environment;
     },
 
@@ -204,6 +215,52 @@ Custom property | Description | Default
     _fireEdit: function() {
       this.fire('open-variables-editor');
       this.opened = false;
+    },
+
+    // Handler for the `variable-deleted` event.
+    _varDeletedHandler: function(e) {
+      if (e.cancelable || !this.variables) {
+        return;
+      }
+      var id = e.detail.value;
+      var index = this.variables.findIndex(function(item) {
+        return item._id === id;
+      });
+      if (!~index) {
+        return;
+      }
+      this.splice('variables', index, 1);
+      // this.$$('#repeater').render();
+    },
+
+    // Handler for the `variable-updated` event.
+    _varUpdateHandler: function(e) {
+      if (e.cancelable) {
+        return;
+      }
+      var env = e.detail.value;
+      if (!this.variables) {
+        this.set('variables', [env]);
+        // this.$$('#repeater').render();
+        return;
+      }
+      var index = this.variables.findIndex(function(item) {
+        return item._id === env._id;
+      });
+      if (index === -1) {
+        // Here's a trick. When adding new variable it is not saved yet
+        // and we should check for a var with the same name.
+        index = this.variables.findIndex(function(item) {
+          return (!item._id && item.variable === env.variable);
+        });
+        if (index === -1) {
+          this.push('variables', env);
+        }
+      }
+      if (~index) {
+        this.set(['variables', index], env);
+      }
+      // this.$$('#repeater').render();
     }
 
     /**
