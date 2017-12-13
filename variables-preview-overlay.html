@@ -1,0 +1,215 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
+<link rel="import" href="../paper-styles/shadow.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+<!--
+An element to display quick preview of variables values for selected environment.
+
+The lement works with [variables-manager](https://github.com/advanced-rest-client/variables-manager/)
+that provide an API to get information about environemnts and variables.
+
+The element displays an overlay controlled by `Polymer.IronOverlayBehavior` with
+list of variables associated with current environment.
+It listens for `variables-list-changed` custom event dispatched by the `variables-manager`.
+If the event cannot be send by the application then set `variables` and `environemnt`
+properties to corresponding values.
+
+### Example
+
+```html
+<variables-preview-overlay id="overlay"></variables-preview-overlay>
+<script>
+document.getElementById('overlay').positionTarget = target; // HTML element
+</script>
+```
+
+### Styling
+`<variables-preview-overlay>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--variables-preview-overlay` | Mixin applied to the element | `{}`
+`--variables-preview-overlay-background-color` | Background color of the oberlay | `inherit`
+`--variables-preview-overlay-dialog-color` | Overlay foreground color | `--primary-text-color`
+`--variables-preview-overlay-title` | Mixin applied to the title element | `{}`
+
+@group UI Elements
+@element variables-preview-overlay
+@demo demo/index.html
+-->
+<dom-module id="variables-preview-overlay">
+  <template>
+    <style>
+    :host {
+      display: block;
+      background-color: var(--variables-preview-overlay-background-color, inherit);
+      color: var(--variables-preview-overlay-color, var(--primary-text-color));
+
+      @apply --arc-font-body1;
+      @apply --shadow-elevation-16dp;
+      @apply --variables-preview-overlay;
+    }
+
+    h2 {
+      position: relative;
+      margin-top: 20px;
+      padding: 0 24px;
+
+      @apply --arc-font-title;
+      @apply --variables-preview-overlay-title;
+    }
+
+    .buttons {
+      position: relative;
+      padding: 8px 8px 8px 24px;
+      margin: 0;
+      color: var(--variables-preview-overlay-button-color, --primary-color);
+      @apply --layout-horizontal;
+      @apply --layout-end-justified;
+    }
+
+    .list {
+      list-style: none;
+    }
+
+    .list,
+    .no-vars {
+      margin-top: 24px;
+      margin-bottom: 24px;
+      padding: 0 24px;
+      min-width: 300px;
+    }
+
+    .var-name {
+      color: rgba(0, 0, 0, .54);
+      margin-right: 16px;
+      display: inline-block;
+    }
+
+    .var-value {
+      color: rgba(0, 0, 0, .87);
+      display: inline-block;
+    }
+
+    li span {
+      text-decoration: line-through;
+    }
+
+    li[data-enabled] span {
+      text-decoration: none;
+    }
+
+    paper-button {
+      cursor: pointer;
+    }
+    </style>
+    <h2>Variables for [[environment]]</h2>
+    <template is="dom-if" if="[[hasVariables]]">
+      <ul class="list" aria-role="list">
+        <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled">
+          <li data-enabled$="[[item.enabled]]" aria-role="listitem">
+            <span class="var-name">[[item.variable]]</span>
+            <span class="var-value">[[item.value]]</span>
+          </li>
+        </template>
+      </ul>
+    </template>
+    <template is="dom-if" if="[[!hasVariables]]">
+      <p class="no-vars">There's no variables for this environment</p>
+    </template>
+    <div class="buttons">
+      <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+    </div>
+  </template>
+  <script>
+  Polymer({
+    is: 'variables-preview-overlay',
+
+    behaviors: [Polymer.IronOverlayBehavior],
+
+    properties: {
+      /**
+       * List of variables to display on the list.
+       * It is updated automatically for `variables-list-changed` event fired
+       * by the `variables-manager` element.
+       */
+      variables: {
+        type: Array,
+        observer: '_variablesChanged'
+      },
+      /**
+       * Currently selected environment name
+       */
+      environment: String,
+      /**
+       * Computed value, true if the environment has any variable
+       */
+      hasVariables: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      }
+    },
+
+    attached: function() {
+      this.listen(window, 'variables-list-changed', '_envChanged');
+    },
+
+    detached: function() {
+      this.unlisten(window, 'variables-list-changed', '_envChanged');
+    },
+
+    _envChanged: function(e) {
+      this.variables = e.detail.value;
+      this.environment = e.detail.environment;
+    },
+
+    _varSort: function(a, b) {
+      if (a.enabled === b.enabled) {
+        return 0;
+      }
+      if (a.enabled < b.enabled) {
+        return 1;
+      }
+      return -1;
+    },
+
+    _variablesChanged: function(value) {
+      if (!value || !value.length) {
+        if (this.hasVariables) {
+          this._setHasVariables(false);
+        }
+      } else {
+        if (!this.hasVariables) {
+          this._setHasVariables(true);
+        }
+      }
+    },
+
+    _fireEdit: function() {
+      this.fire('open-variables-editor');
+    }
+
+    /**
+     * Fired when the user requested to edit variables for selected environemnt.
+     *
+     * @event open-variables-editor
+     */
+  });
+  </script>
+</dom-module>
