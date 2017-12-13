@@ -35,7 +35,8 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
     "variables-manager": "advanced-rest-client/variables-manager#^0.1.0",
     "environment-selector": "advanced-rest-client/environment-selector#^0.1.2",
-    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.24"
+    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.24",
+    "chance": "^1.0.4"
   },
   "ignore": [
     "**/.*",
