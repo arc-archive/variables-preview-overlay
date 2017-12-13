@@ -1,3 +1,21 @@
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.3...0.1.4) (2017-12-13)
+
+
+### Fix
+
+* Added polyfills for IE11 ([41a0f20b6894920014e1296162e716671aabded1](https://github.com/advanced-rest-client/variables-preview-overlay/commit/41a0f20b6894920014e1296162e716671aabded1))
+
+### New
+
+* Added update / delete variable handlers ([d12b433f7e869d2869995511487c0620c65fec6f](https://github.com/advanced-rest-client/variables-preview-overlay/commit/d12b433f7e869d2869995511487c0620c65fec6f))
+
+### Update
+
+* Added sauce configuration for tests ([149602f003b01540829632d0d4215166a436b89a](https://github.com/advanced-rest-client/variables-preview-overlay/commit/149602f003b01540829632d0d4215166a436b89a))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.2...0.1.3) (2017-12-13)
 
