@@ -1,3 +1,13 @@
+<a name="0.1.6"></a>
+## [0.1.6](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.5...0.1.6) (2018-02-02)
+
+
+### Update
+
+* Adding automatic check for variables when not initialized and ready ([dc634a9df94f362158cb62d44f0ed2cbdd98576f](https://github.com/advanced-rest-client/variables-preview-overlay/commit/dc634a9df94f362158cb62d44f0ed2cbdd98576f))
+
+
+
 <a name="0.1.5"></a>
 ## [0.1.5](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.4...0.1.5) (2017-12-13)
 
