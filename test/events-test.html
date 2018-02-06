@@ -32,8 +32,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     /* global fixture, assert, dataGenerator, flush */
     suite('Events', function() {
       var randomVars;
+      var appVars;
+      var sysVars;
+      var appVarsCount;
+      var sysVarsCount;
       suiteSetup(function() {
         randomVars = dataGenerator.variables();
+        sysVars = randomVars.filter(function(item) {
+          return item.sysVar === true;
+        });
+        appVars = randomVars.filter(function(item) {
+          return !item.sysVar;
+        });
+        sysVarsCount = sysVars.length;
+        appVarsCount = randomVars.length - sysVarsCount;
       });
 
       var element;
@@ -59,7 +71,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setupVars();
         assert.isFalse(element.variables === randomVars, 'Creates a copy');
         assert.typeOf(element.variables, 'array', 'Is an array');
-        assert.lengthOf(element.variables, randomVars.length, 'Size matches');
+        assert.lengthOf(element.variables, appVarsCount, 'Vars size matches');
+        assert.lengthOf(element.systemVariables, sysVarsCount, 'Sys vars size matches');
       });
 
       test('Sets environment from the event', function() {
@@ -68,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       function updateVariable() {
-        var variable = randomVars[1];
+        var variable = appVars[1];
         variable.variable = 'test-changed';
         var e = new CustomEvent('variable-updated', {
           bubbles: true,
@@ -110,7 +123,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       function deleteVariable() {
-        var variable = randomVars[1];
+        var variable = appVars[1];
         var e = new CustomEvent('variable-deleted', {
           bubbles: true,
           detail: {
@@ -123,7 +136,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('Removes variable from both lists', function() {
         setupVars();
         deleteVariable();
-        var newLength = randomVars.length - 1;
+        var newLength = appVars.length - 1;
         assert.lengthOf(element.variables, newLength);
         assert.lengthOf(element2.variables, newLength);
       });
@@ -132,8 +145,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setupVars();
         deleteVariable();
         flush(function() {
-          var lis = Polymer.dom(element.root).querySelectorAll('li');
-          var newLength = randomVars.length - 1;
+          var lis = Polymer.dom(element.root).querySelectorAll('.app-vars li');
+          var newLength = appVars.length - 1;
           assert.lengthOf(lis, newLength);
           done();
         });

@@ -21,7 +21,8 @@ window.dataGenerator = {
         variable: chance.word(),
         value: chance.word(),
         enabled: true,
-        _id: 'default/' + chance.hammertime()
+        _id: 'default/' + chance.hammertime(),
+        sysVar: chance.bool()
       };
     }
     return result;
