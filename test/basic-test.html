@@ -26,7 +26,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global fixture, assert, MockInteractions */
+    /* global fixture, assert, MockInteractions, TestHelpers */
     suite('basic', function() {
 
       var element;
@@ -54,6 +54,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.isTrue(element.hasVariables);
         element.variables = undefined;
         assert.isFalse(element.hasVariables);
+      });
+
+      test('hasAppVariables is computed', function() {
+        element.variables = [{
+          variable: 'test',
+          value: 'test'
+        }];
+        assert.isTrue(element.hasAppVariables);
+        element.variables = undefined;
+        assert.isFalse(element.hasAppVariables);
+      });
+
+      test('hasSysVariables is computed', function() {
+        element.systemVariables = [{
+          variable: 'test',
+          value: 'test'
+        }];
+        assert.isTrue(element.hasSysVariables);
+        element.systemVariables = undefined;
+        assert.isFalse(element.hasSysVariables);
+      });
+
+      test('Renders app variables list', function() {
+        element.variables = [{
+          variable: 'test',
+          value: 'test'
+        }];
+        TestHelpers.forceXIfStamp(element);
+        var list = element.$$('.list.app-vars');
+        assert.ok(list);
+      });
+
+      test('Renders system variables list', function() {
+        element.systemVariables = [{
+          variable: 'test',
+          value: 'test'
+        }];
+        TestHelpers.forceXIfStamp(element);
+        var list = element.$$('.list.sys-vars');
+        assert.ok(list);
       });
 
       test('Sets properties from the variables-list-changed event', function() {

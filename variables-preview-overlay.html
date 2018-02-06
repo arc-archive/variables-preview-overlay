@@ -74,6 +74,21 @@ Custom property | Description | Default
       @apply --variables-preview-overlay-title;
     }
 
+    .container {
+      @apply --layout-vertical;
+      max-height: inherit;
+    }
+
+    .content {
+      overflow: auto;
+      @apply --layout-flex;
+      max-height: inherit;
+      height: 100vh;
+      flex-basis: initial;
+      -webkit-flex-basis: initial;
+      @apply --variables-preview-overlay-container;
+    }
+
     .buttons {
       position: relative;
       padding: 8px 8px 8px 24px;
@@ -118,22 +133,37 @@ Custom property | Description | Default
       cursor: pointer;
     }
     </style>
-    <h2>Variables for [[environment]]</h2>
-    <template is="dom-if" if="[[hasVariables]]">
-      <ul class="list" aria-role="list">
-        <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled" id="repeater">
-          <li data-enabled$="[[item.enabled]]" aria-role="listitem">
-            <span class="var-name">[[item.variable]]</span>
-            <span class="var-value">[[item.value]]</span>
-          </li>
+    <div class="container">
+      <div class="content">
+        <template is="dom-if" if="[[hasAppVariables]]">
+          <h2>Variables for [[environment]]</h2>
+          <ul class="list app-vars" aria-role="list">
+            <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled" id="repeater">
+              <li data-enabled$="[[item.enabled]]" aria-role="listitem">
+                <span class="var-name">[[item.variable]]</span>
+                <span class="var-value">[[item.value]]</span>
+              </li>
+            </template>
+          </ul>
         </template>
-      </ul>
-    </template>
-    <template is="dom-if" if="[[!hasVariables]]">
-      <p class="no-vars">There's no variables for this environment</p>
-    </template>
-    <div class="buttons">
-      <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+        <template is="dom-if" if="[[hasSysVariables]]">
+          <h2>System variables</h2>
+          <ul class="list sys-vars" aria-role="list">
+            <template is="dom-repeat" items="[[systemVariables]]">
+              <li aria-role="listitem" data-enabled>
+                <span class="var-name">[[item.variable]]</span>
+                <span class="var-value">[[item.value]]</span>
+              </li>
+            </template>
+          </ul>
+        </template>
+        <template is="dom-if" if="[[!hasVariables]]">
+          <p class="no-vars">Variables list is empty for this environment</p>
+        </template>
+      </div>
+      <div class="buttons">
+        <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+      </div>
     </div>
   </template>
   <script>
@@ -153,6 +183,13 @@ Custom property | Description | Default
         observer: '_variablesChanged'
       },
       /**
+       * List of system variables to display.
+       */
+      systemVariables: {
+        type: Array,
+        observer: '_sysVariablesChanged'
+      },
+      /**
        * Currently selected environment name
        */
       environment: String,
@@ -160,6 +197,23 @@ Custom property | Description | Default
        * Computed value, true if the environment has any variable
        */
       hasVariables: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        computed: '_computeHasVariables(hasAppVariables, hasSysVariables)'
+      },
+      /**
+       * Computed value, true if the element has application variables
+       */
+      hasAppVariables: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
+      /**
+       * Computed value, true if the element has system variables
+       */
+      hasSysVariables: {
         type: Boolean,
         readOnly: true,
         value: false
@@ -198,11 +252,7 @@ Custom property | Description | Default
       if (!ev.defaultPrevented) {
         return;
       }
-      var variables = ev.detail.value;
-      if (!variables) {
-        return;
-      }
-      this.set('variables', variables);
+      this._processVariablesList(ev.detail.value);
       ev = this.fire('environment-current', {}, {
         cancelable: true
       });
@@ -211,16 +261,40 @@ Custom property | Description | Default
       }
       this.set('environment', ev.detail.value);
     },
+    /**
+     * Processes list of variables.
+     * Sets `variables` and `systemVariables` properties.
+     *
+     * @param {Array} variables List of variables received from the variables
+     * manager.
+     */
+    _processVariablesList: function(variables) {
+      if (!variables || !variables.length) {
+        this.set('variables', variables);
+        this.set('systemVariables', variables);
+        return;
+      }
+      variables = variables.map(function(item) {
+        return Object.assign({}, item);
+      });
+      var sysVars = [];
+      for (var i = variables.length - 1; i >= 0; i--) {
+        var copy = Object.assign({}, variables[i]);
+        if (copy.sysVar) {
+          sysVars.push(copy);
+          variables.splice(i, 1);
+        } else {
+          variables[i] = copy;
+        }
+      }
+      variables = variables.length ? variables : undefined;
+      sysVars = sysVars.length ? sysVars : undefined;
+      this.set('variables', variables);
+      this.set('systemVariables', sysVars);
+    },
 
     _varsChanged: function(e) {
-      var eventVars = e.detail.value;
-      var vars;
-      if (eventVars && eventVars.length) {
-        vars = eventVars.map(function(item) {
-          return Object.assign({}, item);
-        });
-      }
-      this.set('variables', vars);
+      this._processVariablesList(e.detail.value);
       this.environment = e.detail.environment;
     },
 
@@ -233,17 +307,50 @@ Custom property | Description | Default
       }
       return -1;
     },
-
+    /**
+     * Computes value of `hasSysVariables` property.
+     * Sets true if the element has system variables to display.
+     *
+     * @param {?Array} value Application defined variables
+     */
     _variablesChanged: function(value) {
       if (!value || !value.length) {
-        if (this.hasVariables) {
-          this._setHasVariables(false);
+        if (this.hasAppVariables) {
+          this._setHasAppVariables(false);
         }
       } else {
-        if (!this.hasVariables) {
-          this._setHasVariables(true);
+        if (!this.hasAppVariables) {
+          this._setHasAppVariables(true);
         }
       }
+    },
+    /**
+     * Computes value of `hasSysVariables` property.
+     * Sets true if the element has system variables to display.
+     *
+     * @param {?Array} value System variables.
+     */
+    _sysVariablesChanged: function(value) {
+      if (!value || !value.length) {
+        if (this.hasSysVariables) {
+          this._setHasSysVariables(false);
+        }
+      } else {
+        if (!this.hasSysVariables) {
+          this._setHasSysVariables(true);
+        }
+      }
+    },
+
+    /**
+     * Computes if the element has any variables to display.
+     *
+     * @param {Boolean} appVars Value of `hasAppVariables` property
+     * @param {Boolean} sysVars Value of `hasSysVariables` property
+     * @return {Boolean} True if either app or system variables are set.
+     */
+    _computeHasVariables: function(appVars, sysVars) {
+      return appVars || sysVars;
     },
 
     _fireEdit: function() {

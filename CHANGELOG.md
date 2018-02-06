@@ -1,3 +1,13 @@
+<a name="0.1.8"></a>
+## [0.1.8](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.7...0.1.8) (2018-02-06)
+
+
+### Update
+
+* Adding support for system variables. ([ed97f4bcf2fcb83ce54a90e2fcf7bff7799a6db2](https://github.com/advanced-rest-client/variables-preview-overlay/commit/ed97f4bcf2fcb83ce54a90e2fcf7bff7799a6db2))
+
+
+
 <a name="0.1.7"></a>
 ## [0.1.7](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.6...0.1.7) (2018-02-02)
 
