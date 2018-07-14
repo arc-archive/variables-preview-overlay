@@ -1,0 +1,611 @@
+{
+  "schema_version": "1.0.0",
+  "elements": [
+    {
+      "description": "An element to display quick preview of variables values for selected\nenvironment.\n\nThe element works with\n[variables-manager](https://github.com/advanced-rest-client/variables-manager/)\nthat provides the events API to get information about environemnts and variables.\n\nThe element displays an overlay controlled by `Polymer.IronOverlayBehavior`\nwith list of variables associated with current environment.\n\nIt listens for `variables-list-changed` custom event dispatched by the\n`variables-manager`.\nIf the event cannot be send by the application then set `variables` and\n`environemnt` properties to the corresponding values.\n\n### Example\n\n```html\n<variables-preview-overlay id=\"overlay\"></variables-preview-overlay>\n```\n```javascript\ndocument.getElementById('overlay').positionTarget = target; // HTML element\n```\n\n### Styling\n\n`<variables-preview-overlay>` provides the following custom properties and\nmixins for styling:\n\nCustom property | Description | Default\n----------------|-------------|----------\n`--variables-preview-overlay` | Mixin applied to the element | `{}`\n`--variables-preview-overlay-background-color` | Background color of the oberlay | `inherit`\n`--variables-preview-overlay-dialog-color` | Overlay foreground color | `--primary-text-color`\n`--variables-preview-overlay-title` | Mixin applied to the title element | `{}`",
+      "summary": "",
+      "path": "variables-preview-overlay.html",
+      "properties": [
+        {
+          "name": "variables",
+          "type": "Array | null | undefined",
+          "description": "List of variables to display on the list.\nIt is updated automatically for `variables-list-changed` event fired\nby the `variables-manager` element.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 188,
+              "column": 8
+            },
+            "end": {
+              "line": 191,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "\"_variablesChanged\"",
+              "attributeType": "Array"
+            }
+          }
+        },
+        {
+          "name": "systemVariables",
+          "type": "Array | null | undefined",
+          "description": "List of system variables to display.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 195,
+              "column": 8
+            },
+            "end": {
+              "line": 198,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "observer": "\"_sysVariablesChanged\"",
+              "attributeType": "Array"
+            }
+          }
+        },
+        {
+          "name": "environment",
+          "type": "string | null | undefined",
+          "description": "Currently selected environment name",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 202,
+              "column": 8
+            },
+            "end": {
+              "line": 202,
+              "column": 27
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "attributeType": "String"
+            }
+          }
+        },
+        {
+          "name": "hasVariables",
+          "type": "boolean | null | undefined",
+          "description": "Computed value, true if the environment has any variable",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 206,
+              "column": 8
+            },
+            "end": {
+              "line": 211,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": true,
+              "attributeType": "Boolean"
+            }
+          },
+          "defaultValue": "false"
+        },
+        {
+          "name": "hasAppVariables",
+          "type": "boolean | null | undefined",
+          "description": "Computed value, true if the element has application variables",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 215,
+              "column": 8
+            },
+            "end": {
+              "line": 219,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": true,
+              "attributeType": "Boolean"
+            }
+          },
+          "defaultValue": "false"
+        },
+        {
+          "name": "hasSysVariables",
+          "type": "boolean | null | undefined",
+          "description": "Computed value, true if the element has system variables",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 223,
+              "column": 8
+            },
+            "end": {
+              "line": 227,
+              "column": 9
+            }
+          },
+          "metadata": {
+            "polymer": {
+              "readOnly": true,
+              "attributeType": "Boolean"
+            }
+          },
+          "defaultValue": "false"
+        }
+      ],
+      "methods": [
+        {
+          "name": "connectedCallback",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 238,
+              "column": 4
+            },
+            "end": {
+              "line": 249,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "disconnectedCallback",
+          "description": "",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 251,
+              "column": 4
+            },
+            "end": {
+              "line": 256,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "refresh",
+          "description": "Refreshes the list of variables on demand.",
+          "privacy": "public",
+          "sourceRange": {
+            "start": {
+              "line": 263,
+              "column": 4
+            },
+            "end": {
+              "line": 266,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "[type]",
+            "desc": "[description]"
+          }
+        },
+        {
+          "name": "_refreshVariables",
+          "description": "Dispatches `variable-list` custom event to ask variables manager\nfor list of variables.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 271,
+              "column": 4
+            },
+            "end": {
+              "line": 283,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_refreshEnvironment",
+          "description": "Dispatches `environment-current` custom event to ask variables manager\nfor current environment.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 288,
+              "column": 4
+            },
+            "end": {
+              "line": 297,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_processVariablesList",
+          "description": "Processes list of variables.\nSets `variables` and `systemVariables` properties.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 305,
+              "column": 4
+            },
+            "end": {
+              "line": 326,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "variables",
+              "type": "Array",
+              "description": "List of variables received from the variables\nmanager."
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_varsChanged",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 328,
+              "column": 4
+            },
+            "end": {
+              "line": 331,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_varSort",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 333,
+              "column": 4
+            },
+            "end": {
+              "line": 341,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "a"
+            },
+            {
+              "name": "b"
+            }
+          ]
+        },
+        {
+          "name": "_variablesChanged",
+          "description": "Computes value of `hasSysVariables` property.\nSets true if the element has system variables to display.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 348,
+              "column": 4
+            },
+            "end": {
+              "line": 358,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "value",
+              "type": "?Array",
+              "description": "Application defined variables"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_sysVariablesChanged",
+          "description": "Computes value of `hasSysVariables` property.\nSets true if the element has system variables to display.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 365,
+              "column": 4
+            },
+            "end": {
+              "line": 375,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "value",
+              "type": "?Array",
+              "description": "System variables."
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_computeHasVariables",
+          "description": "Computes if the element has any variables to display.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 383,
+              "column": 4
+            },
+            "end": {
+              "line": 385,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "appVars",
+              "type": "Boolean",
+              "description": "Value of `hasAppVariables` property"
+            },
+            {
+              "name": "sysVars",
+              "type": "Boolean",
+              "description": "Value of `hasSysVariables` property"
+            }
+          ],
+          "return": {
+            "type": "Boolean",
+            "desc": "True if either app or system variables are set."
+          }
+        },
+        {
+          "name": "_fireEdit",
+          "description": "",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 387,
+              "column": 4
+            },
+            "end": {
+              "line": 393,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_varDeletedHandler",
+          "description": "Handler for the `variable-deleted` event.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 396,
+              "column": 4
+            },
+            "end": {
+              "line": 406,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        },
+        {
+          "name": "_varUpdateHandler",
+          "description": "Handler for the `variable-updated` event.",
+          "privacy": "protected",
+          "sourceRange": {
+            "start": {
+              "line": 409,
+              "column": 4
+            },
+            "end": {
+              "line": 430,
+              "column": 5
+            }
+          },
+          "metadata": {},
+          "params": [
+            {
+              "name": "e"
+            }
+          ],
+          "return": {
+            "type": "void"
+          }
+        }
+      ],
+      "staticMethods": [],
+      "demos": [
+        {
+          "url": "demo/index.html",
+          "description": ""
+        }
+      ],
+      "metadata": {},
+      "sourceRange": {
+        "start": {
+          "line": 178,
+          "column": 2
+        },
+        "end": {
+          "line": 436,
+          "column": 3
+        }
+      },
+      "privacy": "public",
+      "superclass": "HTMLElement",
+      "name": "UiElements.VariablesPreviewOverlay",
+      "attributes": [
+        {
+          "name": "variables",
+          "description": "List of variables to display on the list.\nIt is updated automatically for `variables-list-changed` event fired\nby the `variables-manager` element.",
+          "sourceRange": {
+            "start": {
+              "line": 188,
+              "column": 8
+            },
+            "end": {
+              "line": 191,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "Array | null | undefined"
+        },
+        {
+          "name": "system-variables",
+          "description": "List of system variables to display.",
+          "sourceRange": {
+            "start": {
+              "line": 195,
+              "column": 8
+            },
+            "end": {
+              "line": 198,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "Array | null | undefined"
+        },
+        {
+          "name": "environment",
+          "description": "Currently selected environment name",
+          "sourceRange": {
+            "start": {
+              "line": 202,
+              "column": 8
+            },
+            "end": {
+              "line": 202,
+              "column": 27
+            }
+          },
+          "metadata": {},
+          "type": "string | null | undefined"
+        },
+        {
+          "name": "has-variables",
+          "description": "Computed value, true if the environment has any variable",
+          "sourceRange": {
+            "start": {
+              "line": 206,
+              "column": 8
+            },
+            "end": {
+              "line": 211,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "boolean | null | undefined"
+        },
+        {
+          "name": "has-app-variables",
+          "description": "Computed value, true if the element has application variables",
+          "sourceRange": {
+            "start": {
+              "line": 215,
+              "column": 8
+            },
+            "end": {
+              "line": 219,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "boolean | null | undefined"
+        },
+        {
+          "name": "has-sys-variables",
+          "description": "Computed value, true if the element has system variables",
+          "sourceRange": {
+            "start": {
+              "line": 223,
+              "column": 8
+            },
+            "end": {
+              "line": 227,
+              "column": 9
+            }
+          },
+          "metadata": {},
+          "type": "boolean | null | undefined"
+        }
+      ],
+      "events": [
+        {
+          "type": "CustomEvent",
+          "name": "open-variables-editor",
+          "description": "Fired when the user requested to edit variables for selected environemnt.",
+          "metadata": {}
+        }
+      ],
+      "styling": {
+        "cssVariables": [],
+        "selectors": []
+      },
+      "slots": [],
+      "tagname": "variables-preview-overlay",
+      "mixins": [
+        "Polymer.IronOverlayBehavior"
+      ]
+    }
+  ]
+}
