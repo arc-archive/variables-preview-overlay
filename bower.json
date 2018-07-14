@@ -1,9 +1,10 @@
 {
   "name": "variables-preview-overlay",
   "description": "An element to display quick preview of variables values for selected environment",
-  "version": "0.1.9",
-  "license": "Apache-2.0 OR CC-BY-4.0",
+  "version": "2.0.0-preview",
+  "license": "Apache-2.0",
   "authors": [
+    "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "keywords": [
@@ -11,37 +12,32 @@
     "polymer"
   ],
   "private": true,
-  "main": [
-    "variables-preview-overlay.html"
-  ],
+  "main": "variables-preview-overlay.html",
   "repository": {
     "type": "git",
     "url": "git@github.com:advanced-rest-client/variables-preview-overlay.git"
   },
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.9.2",
-    "paper-button": "PolymerElements/paper-button#<2",
-    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#<2",
-    "paper-styles": "PolymerElements/paper-styles#<2",
-    "iron-flex-layout": "PolymerElements/iron-flex-layout#<2",
-    "arc-polyfills": "advanced-rest-client/arc-polyfills#^0.1.10"
+    "polymer": "Polymer/polymer#^2.0.0",
+    "paper-button": "PolymerElements/paper-button#^2.0.0",
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^2.0.0",
+    "paper-styles": "PolymerElements/paper-styles#^2.0.0",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^2.0.0"
   },
   "devDependencies": {
-    "iron-component-page": "polymerelements/iron-component-page#1.0.0",
-    "web-component-tester": "^6.0.0",
-    "paper-styles": "polymerelements/paper-styles#^1.0.2",
-    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
-    "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.4.0",
-    "test-fixture": "PolymerElements/test-fixture#^3.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
-    "variables-manager": "advanced-rest-client/variables-manager#^0.1.0",
-    "environment-selector": "advanced-rest-client/environment-selector#^0.1.2",
-    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.24",
-    "chance": "^1.0.4"
+    "iron-component-page": "PolymerElements/iron-component-page#^3.0.1",
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
+    "iron-test-helpers": "PolymerElements/iron-test-helpers#^2.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "variables-manager": "advanced-rest-client/variables-manager#2.0.0-preview",
+    "environment-selector": "advanced-rest-client/environment-selector#2.0.0-preview",
+    "chance": "^1.0.4",
+    "app-pouchdb": "PolymerElements/app-pouchdb#^2.1.1",
+    "web-animations-js": "web-animations/web-animations-js#^2.3"
   },
   "ignore": [
     "**/.*",
-    "dependencyci.yml",
     "node_modules",
     "bower_components",
     "test",

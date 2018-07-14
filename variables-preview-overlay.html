@@ -11,47 +11,13 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/legacy/class.html">
+<link rel="import" href="../polymer/lib/utils/render-status.html">
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../paper-styles/shadow.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../arc-polyfills/arc-polyfills.html">
-<!--
-An element to display quick preview of variables values for selected environment.
-
-The lement works with [variables-manager](https://github.com/advanced-rest-client/variables-manager/)
-that provide an API to get information about environemnts and variables.
-
-The element displays an overlay controlled by `Polymer.IronOverlayBehavior` with
-list of variables associated with current environment.
-It listens for `variables-list-changed` custom event dispatched by the `variables-manager`.
-If the event cannot be send by the application then set `variables` and `environemnt`
-properties to corresponding values.
-
-### Example
-
-```html
-<variables-preview-overlay id="overlay"></variables-preview-overlay>
-<script>
-document.getElementById('overlay').positionTarget = target; // HTML element
-</script>
-```
-
-### Styling
-`<variables-preview-overlay>` provides the following custom properties and mixins for styling:
-
-Custom property | Description | Default
-----------------|-------------|----------
-`--variables-preview-overlay` | Mixin applied to the element | `{}`
-`--variables-preview-overlay-background-color` | Background color of the oberlay | `inherit`
-`--variables-preview-overlay-dialog-color` | Overlay foreground color | `--primary-text-color`
-`--variables-preview-overlay-title` | Mixin applied to the title element | `{}`
-
-@group UI Elements
-@element variables-preview-overlay
-@demo demo/index.html
--->
 <dom-module id="variables-preview-overlay">
   <template>
     <style>
@@ -93,7 +59,7 @@ Custom property | Description | Default
       position: relative;
       padding: 8px 8px 8px 24px;
       margin: 0;
-      color: var(--variables-preview-overlay-button-color, --primary-color);
+      color: var(--variables-preview-overlay-button-color, var(--primary-color));
       @apply --layout-horizontal;
       @apply --layout-end-justified;
     }
@@ -167,100 +133,169 @@ Custom property | Description | Default
     </div>
   </template>
   <script>
-  Polymer({
-    is: 'variables-preview-overlay',
+  /**
+   * An element to display quick preview of variables values for selected
+   * environment.
+   *
+   * The element works with
+   * [variables-manager](https://github.com/advanced-rest-client/variables-manager/)
+   * that provides the events API to get information about environemnts and variables.
+   *
+   * The element displays an overlay controlled by `Polymer.IronOverlayBehavior`
+   * with list of variables associated with current environment.
+   *
+   * It listens for `variables-list-changed` custom event dispatched by the
+   * `variables-manager`.
+   * If the event cannot be send by the application then set `variables` and
+   * `environemnt` properties to the corresponding values.
+   *
+   * ### Example
+   *
+   * ```html
+   * <variables-preview-overlay id="overlay"></variables-preview-overlay>
+   * ```
+   * ```javascript
+   * document.getElementById('overlay').positionTarget = target; // HTML element
+   * ```
+   *
+   * ### Styling
+   *
+   * `<variables-preview-overlay>` provides the following custom properties and
+   * mixins for styling:
+   *
+   * Custom property | Description | Default
+   * ----------------|-------------|----------
+   * `--variables-preview-overlay` | Mixin applied to the element | `{}`
+   * `--variables-preview-overlay-background-color` | Background color of the oberlay | `inherit`
+   * `--variables-preview-overlay-dialog-color` | Overlay foreground color | `--primary-text-color`
+   * `--variables-preview-overlay-title` | Mixin applied to the title element | `{}`
+   *
+   * @memberof UiElements
+   * @customElement
+   * @polymer
+   * @demo demo/index.html
+   * @appliesMixin Polymer.IronOverlayBehavior
+   */
+  class VariablesPreviewOverlay extends
+    Polymer.mixinBehaviors([Polymer.IronOverlayBehavior], Polymer.Element) {
+    static get is() { return 'variables-preview-overlay';}
+    static get properties() {
+      return {
+        /**
+         * List of variables to display on the list.
+         * It is updated automatically for `variables-list-changed` event fired
+         * by the `variables-manager` element.
+         */
+        variables: {
+          type: Array,
+          observer: '_variablesChanged'
+        },
+        /**
+         * List of system variables to display.
+         */
+        systemVariables: {
+          type: Array,
+          observer: '_sysVariablesChanged'
+        },
+        /**
+         * Currently selected environment name
+         */
+        environment: String,
+        /**
+         * Computed value, true if the environment has any variable
+         */
+        hasVariables: {
+          type: Boolean,
+          readOnly: true,
+          value: false,
+          computed: '_computeHasVariables(hasAppVariables, hasSysVariables)'
+        },
+        /**
+         * Computed value, true if the element has application variables
+         */
+        hasAppVariables: {
+          type: Boolean,
+          readOnly: true,
+          value: false
+        },
+        /**
+         * Computed value, true if the element has system variables
+         */
+        hasSysVariables: {
+          type: Boolean,
+          readOnly: true,
+          value: false
+        }
+      };
+    }
 
-    behaviors: [Polymer.IronOverlayBehavior],
+    constructor() {
+      super();
+      this._varsChanged = this._varsChanged.bind(this);
+      this._varDeletedHandler = this._varDeletedHandler.bind(this);
+      this._varUpdateHandler = this._varUpdateHandler.bind(this);
+    }
 
-    properties: {
-      /**
-       * List of variables to display on the list.
-       * It is updated automatically for `variables-list-changed` event fired
-       * by the `variables-manager` element.
-       */
-      variables: {
-        type: Array,
-        observer: '_variablesChanged'
-      },
-      /**
-       * List of system variables to display.
-       */
-      systemVariables: {
-        type: Array,
-        observer: '_sysVariablesChanged'
-      },
-      /**
-       * Currently selected environment name
-       */
-      environment: String,
-      /**
-       * Computed value, true if the environment has any variable
-       */
-      hasVariables: {
-        type: Boolean,
-        readOnly: true,
-        value: false,
-        computed: '_computeHasVariables(hasAppVariables, hasSysVariables)'
-      },
-      /**
-       * Computed value, true if the element has application variables
-       */
-      hasAppVariables: {
-        type: Boolean,
-        readOnly: true,
-        value: false
-      },
-      /**
-       * Computed value, true if the element has system variables
-       */
-      hasSysVariables: {
-        type: Boolean,
-        readOnly: true,
-        value: false
-      }
-    },
+    connectedCallback() {
+      super.connectedCallback();
+      window.addEventListener('variables-list-changed', this._varsChanged);
+      window.addEventListener('variable-deleted', this._varDeletedHandler);
+      window.addEventListener('variable-updated', this._varUpdateHandler);
 
-    attached: function() {
-      this.listen(window, 'variables-list-changed', '_varsChanged');
-      this.listen(window, 'variable-deleted', '_varDeletedHandler');
-      this.listen(window, 'variable-updated', '_varUpdateHandler');
-    },
-
-    detached: function() {
-      this.unlisten(window, 'variables-list-changed', '_varsChanged');
-      this.unlisten(window, 'variable-deleted', '_varDeletedHandler');
-      this.unlisten(window, 'variable-updated', '_varUpdateHandler');
-    },
-
-    ready: function() {
       if (!this.variables) {
-        Polymer.RenderStatus.afterNextRender(this, function() {
+        Polymer.RenderStatus.afterNextRender(this, () => {
           this.refresh();
         });
       }
-    },
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      window.removeEventListener('variables-list-changed', this._varsChanged);
+      window.removeEventListener('variable-deleted', this._varDeletedHandler);
+      window.removeEventListener('variable-updated', this._varUpdateHandler);
+    }
 
     /**
      * Refreshes the list of variables on demand.
      *
      * @return {[type]} [description]
      */
-    refresh: function() {
-      var ev = this.fire('variable-list', {}, {
-        cancelable: true
+    refresh() {
+      this._refreshVariables();
+      this._refreshEnvironment();
+    }
+    /**
+    * Dispatches `variable-list` custom event to ask variables manager
+    * for list of variables.
+     */
+    _refreshVariables() {
+      const e = new CustomEvent('variable-list', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {}
       });
-      if (!ev.defaultPrevented) {
+      this.dispatchEvent(e);
+      if (!e.defaultPrevented) {
         return;
       }
-      this._processVariablesList(ev.detail.value);
-      ev = this.fire('environment-current', {}, {
-        cancelable: true
+      this._processVariablesList(e.detail.value);
+    }
+    /**
+     * Dispatches `environment-current` custom event to ask variables manager
+     * for current environment.
+     */
+    _refreshEnvironment() {
+      const e = new CustomEvent('environment-current', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {}
       });
-      if (!ev.defaultPrevented) {
-        return;
-      }
-      this.set('environment', ev.detail.value);
-    },
+      this.dispatchEvent(e);
+      this.set('environment', e.detail.value);
+    }
     /**
      * Processes list of variables.
      * Sets `variables` and `systemVariables` properties.
@@ -268,18 +303,16 @@ Custom property | Description | Default
      * @param {Array} variables List of variables received from the variables
      * manager.
      */
-    _processVariablesList: function(variables) {
+    _processVariablesList(variables) {
       if (!variables || !variables.length) {
         this.set('variables', variables);
         this.set('systemVariables', variables);
         return;
       }
-      variables = variables.map(function(item) {
-        return Object.assign({}, item);
-      });
-      var sysVars = [];
-      for (var i = variables.length - 1; i >= 0; i--) {
-        var copy = Object.assign({}, variables[i]);
+      variables = variables.map((item) => Object.assign({}, item));
+      const sysVars = [];
+      for (let i = variables.length - 1; i >= 0; i--) {
+        const copy = Object.assign({}, variables[i]);
         if (copy.sysVar) {
           sysVars.push(copy);
           variables.splice(i, 1);
@@ -287,18 +320,18 @@ Custom property | Description | Default
           variables[i] = copy;
         }
       }
-      variables = variables.length ? variables : undefined;
-      sysVars = sysVars.length ? sysVars : undefined;
-      this.set('variables', variables);
-      this.set('systemVariables', sysVars);
-    },
+      const variablesResult = variables.length ? variables : undefined;
+      const sysVarsResult = sysVars.length ? sysVars : undefined;
+      this.set('variables', variablesResult);
+      this.set('systemVariables', sysVarsResult);
+    }
 
-    _varsChanged: function(e) {
+    _varsChanged(e) {
       this._processVariablesList(e.detail.value);
       this.environment = e.detail.environment;
-    },
+    }
 
-    _varSort: function(a, b) {
+    _varSort(a, b) {
       if (a.enabled === b.enabled) {
         return 0;
       }
@@ -306,14 +339,14 @@ Custom property | Description | Default
         return 1;
       }
       return -1;
-    },
+    }
     /**
      * Computes value of `hasSysVariables` property.
      * Sets true if the element has system variables to display.
      *
      * @param {?Array} value Application defined variables
      */
-    _variablesChanged: function(value) {
+    _variablesChanged(value) {
       if (!value || !value.length) {
         if (this.hasAppVariables) {
           this._setHasAppVariables(false);
@@ -323,14 +356,14 @@ Custom property | Description | Default
           this._setHasAppVariables(true);
         }
       }
-    },
+    }
     /**
      * Computes value of `hasSysVariables` property.
      * Sets true if the element has system variables to display.
      *
      * @param {?Array} value System variables.
      */
-    _sysVariablesChanged: function(value) {
+    _sysVariablesChanged(value) {
       if (!value || !value.length) {
         if (this.hasSysVariables) {
           this._setHasSysVariables(false);
@@ -340,8 +373,7 @@ Custom property | Description | Default
           this._setHasSysVariables(true);
         }
       }
-    },
-
+    }
     /**
      * Computes if the element has any variables to display.
      *
@@ -349,51 +381,46 @@ Custom property | Description | Default
      * @param {Boolean} sysVars Value of `hasSysVariables` property
      * @return {Boolean} True if either app or system variables are set.
      */
-    _computeHasVariables: function(appVars, sysVars) {
+    _computeHasVariables(appVars, sysVars) {
       return appVars || sysVars;
-    },
+    }
 
-    _fireEdit: function() {
-      this.fire('open-variables-editor');
+    _fireEdit() {
+      this.dispatchEvent(new CustomEvent('open-variables-editor', {
+        bubbles: true,
+        composed: true
+      }));
       this.opened = false;
-    },
+    }
 
     // Handler for the `variable-deleted` event.
-    _varDeletedHandler: function(e) {
+    _varDeletedHandler(e) {
       if (e.cancelable || !this.variables) {
         return;
       }
-      var id = e.detail.value;
-      var index = this.variables.findIndex(function(item) {
-        return item._id === id;
-      });
+      const id = e.detail.value;
+      const index = this.variables.findIndex((item) => item._id === id);
       if (!~index) {
         return;
       }
       this.splice('variables', index, 1);
-      // this.$$('#repeater').render();
-    },
+    }
 
     // Handler for the `variable-updated` event.
-    _varUpdateHandler: function(e) {
+    _varUpdateHandler(e) {
       if (e.cancelable) {
         return;
       }
-      var env = e.detail.value;
+      const env = e.detail.value;
       if (!this.variables) {
         this.set('variables', [env]);
-        // this.$$('#repeater').render();
         return;
       }
-      var index = this.variables.findIndex(function(item) {
-        return item._id === env._id;
-      });
+      let index = this.variables.findIndex((item) => item._id === env._id);
       if (index === -1) {
         // Here's a trick. When adding new variable it is not saved yet
         // and we should check for a var with the same name.
-        index = this.variables.findIndex(function(item) {
-          return (!item._id && item.variable === env.variable);
-        });
+        index = this.variables.findIndex((item) => (!item._id && item.variable === env.variable));
         if (index === -1) {
           this.push('variables', env);
         }
@@ -401,14 +428,13 @@ Custom property | Description | Default
       if (~index) {
         this.set(['variables', index], env);
       }
-      // this.$$('#repeater').render();
     }
-
     /**
      * Fired when the user requested to edit variables for selected environemnt.
      *
      * @event open-variables-editor
      */
-  });
+  }
+  window.customElements.define(VariablesPreviewOverlay.is, VariablesPreviewOverlay);
   </script>
 </dom-module>

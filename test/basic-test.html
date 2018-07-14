@@ -1,21 +1,10 @@
 <!doctype html>
-<!--
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
-    <script src="../../iron-test-helpers/test-helpers.js"></script>
-    <script src="../../iron-test-helpers/mock-interactions.js"></script>
     <link rel="import" href="../variables-preview-overlay.html">
   </head>
   <body>
@@ -26,10 +15,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global fixture, assert, MockInteractions, TestHelpers */
     suite('basic', function() {
 
-      var element;
+      let element;
       setup(function() {
         element = fixture('basic');
       });
@@ -76,28 +64,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.isFalse(element.hasSysVariables);
       });
 
-      test('Renders app variables list', function() {
+      test('Renders app variables list', function(done) {
         element.variables = [{
           variable: 'test',
           value: 'test'
         }];
-        TestHelpers.forceXIfStamp(element);
-        var list = element.$$('.list.app-vars');
-        assert.ok(list);
+        flush(() => {
+          const list = element.shadowRoot.querySelector('.list.app-vars');
+          assert.ok(list);
+          done();
+        });
       });
 
-      test('Renders system variables list', function() {
+      test('Renders system variables list', function(done) {
         element.systemVariables = [{
           variable: 'test',
           value: 'test'
         }];
-        TestHelpers.forceXIfStamp(element);
-        var list = element.$$('.list.sys-vars');
-        assert.ok(list);
+        flush(() => {
+          const list = element.shadowRoot.querySelector('.list.sys-vars');
+          assert.ok(list);
+          done();
+        });
       });
 
       test('Sets properties from the variables-list-changed event', function() {
-        var e = new CustomEvent('variables-list-changed', {
+        const e = new CustomEvent('variables-list-changed', {
           bubbles: true,
           detail: {
             environment: 'test-env',
@@ -114,17 +106,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('Fires open-variables-editor event', function() {
-        var fired = false;
+        let fired = false;
         element.addEventListener('open-variables-editor', function clb() {
           element.removeEventListener('open-variables-editor', clb);
           fired = true;
         });
-        var button = element.$$('paper-button');
-        MockInteractions.tap(button);
+        const button = element.shadowRoot.querySelector('paper-button');
+        button.click();
         assert.isTrue(fired);
       });
     });
     </script>
-
   </body>
 </html>
