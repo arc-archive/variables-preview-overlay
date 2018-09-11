@@ -22,7 +22,8 @@
     "paper-button": "PolymerElements/paper-button#^2.0.0",
     "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^2.0.0",
     "paper-styles": "PolymerElements/paper-styles#^2.0.0",
-    "iron-flex-layout": "PolymerElements/iron-flex-layout#^2.0.0"
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^2.0.0",
+    "variables-consumer-mixin": "advanced-rest-client/variables-consumer-mixin#2.0.0-preview"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^3.0.1",
@@ -30,8 +31,9 @@
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^2.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "arc-models": "advanced-rest-client/arc-models#2.0.0-preview",
     "variables-manager": "advanced-rest-client/variables-manager#2.0.0-preview",
-    "environment-selector": "advanced-rest-client/environment-selector#2.0.0-preview",
+    "variables-editor": "advanced-rest-client/variables-editor#2.0.0-preview",
     "chance": "^1.0.4",
     "app-pouchdb": "PolymerElements/app-pouchdb#^2.1.1",
     "web-animations-js": "web-animations/web-animations-js#^2.3"

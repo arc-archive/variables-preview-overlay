@@ -44,14 +44,23 @@
         assert.isFalse(element.hasVariables);
       });
 
+      test('appVariables is computed', () => {
+        element.variables = [{
+          variable: 'test',
+          value: 'test'
+        }];
+        assert.typeOf(element.appVariables, 'array');
+        assert.lengthOf(element.appVariables, 1);
+      });
+
       test('hasAppVariables is computed', function() {
         element.variables = [{
           variable: 'test',
           value: 'test'
         }];
-        assert.isTrue(element.hasAppVariables);
+        assert.isTrue(element.hasAppVariables, 'has variables when set');
         element.variables = undefined;
-        assert.isFalse(element.hasAppVariables);
+        assert.isFalse(element.hasAppVariables, 'is false when undefined');
       });
 
       test('hasSysVariables is computed', function() {
@@ -92,7 +101,6 @@
         const e = new CustomEvent('variables-list-changed', {
           bubbles: true,
           detail: {
-            environment: 'test-env',
             value: [{
               variable: 'test',
               value: 'test'
@@ -101,7 +109,6 @@
         });
         document.body.dispatchEvent(e);
         assert.isTrue(element.hasVariables);
-        assert.equal(element.environment, 'test-env');
         assert.typeOf(element.variables, 'array');
       });
 

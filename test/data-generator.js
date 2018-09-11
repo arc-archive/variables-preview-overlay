@@ -1,9 +1,9 @@
 // jshint ignore: start
 window.dataGenerator = {
   environments: function() {
-    var no = chance.integer({min: 1, max: 5});
-    var result = [];
-    for (var i = 0; i < no; i++) {
+    const no = chance.integer({min: 1, max: 5});
+    const result = [];
+    for (let i = 0; i < no; i++) {
       result[result.length] = {
         name: chance.word(),
         created: chance.hammertime()
@@ -13,9 +13,9 @@ window.dataGenerator = {
   },
 
   variables: function() {
-    var no = 10;
-    var result = [];
-    for (var i = 0; i < no; i++) {
+    const no = 10;
+    const result = [];
+    for (let i = 0; i < no; i++) {
       result[result.length] = {
         environment: 'default',
         variable: chance.word(),

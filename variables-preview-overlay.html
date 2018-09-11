@@ -18,6 +18,7 @@ the License.
 <link rel="import" href="../paper-styles/shadow.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../variables-consumer-mixin/variables-consumer-mixin.html">
 <dom-module id="variables-preview-overlay">
   <template>
     <style>
@@ -105,7 +106,7 @@ the License.
         <template is="dom-if" if="[[hasAppVariables]]">
           <h2>Variables for [[environment]]</h2>
           <ul class="list app-vars" aria-role="list">
-            <template is="dom-repeat" items="[[variables]]" sort="_varSort" observe="enabled" id="repeater">
+            <template is="dom-repeat" items="[[appVariables]]" sort="_varSort" observe="enabled" id="repeater">
               <li data-enabled$="[[item.enabled]]" aria-role="listitem">
                 <span class="var-name">[[item.variable]]</span>
                 <span class="var-value">[[item.value]]</span>
@@ -135,14 +136,16 @@ the License.
   </template>
   <script>
   /**
-   * An element to display quick preview of variables values for selected
+   * An element to display quick preview of variables values for current
    * environment.
    *
    * The element works with
    * [variables-manager](https://github.com/advanced-rest-client/variables-manager/)
    * that provides the events API to get information about environemnts and variables.
+   * It also requires `advanced-rest-client/arc-models/variables-model` as an
+   * access to the data store.
    *
-   * The element displays an overlay controlled by `Polymer.IronOverlayBehavior`
+   * The element renders an overlay controlled by `Polymer.IronOverlayBehavior`
    * with list of variables associated with current environment.
    *
    * It listens for `variables-list-changed` custom event dispatched by the
@@ -176,47 +179,34 @@ the License.
    * @polymer
    * @demo demo/index.html
    * @appliesMixin Polymer.IronOverlayBehavior
+   * @appliesMixin ArcComponents.VariablesConsumerMixin
    */
   class VariablesPreviewOverlay extends
-    Polymer.mixinBehaviors([Polymer.IronOverlayBehavior], Polymer.Element) {
-    static get is() { return 'variables-preview-overlay';}
+    ArcComponents.VariablesConsumerMixin(
+      Polymer.mixinBehaviors([Polymer.IronOverlayBehavior], Polymer.Element)) {
+    static get is() {return 'variables-preview-overlay';}
     static get properties() {
       return {
         /**
-         * List of variables to display on the list.
-         * It is updated automatically for `variables-list-changed` event fired
-         * by the `variables-manager` element.
+         * List of application variables (stored in the data store + in memory)
+         * @type {Array<Object>}
          */
-        variables: {
-          type: Array,
-          observer: '_variablesChanged'
+        appVariables: {
+          type: Array
         },
         /**
          * List of system variables to display.
+         * @type {Array<Object>}
          */
         systemVariables: {
-          type: Array,
-          observer: '_sysVariablesChanged'
-        },
-        /**
-         * Currently selected environment name
-         */
-        environment: String,
-        /**
-         * Computed value, true if the environment has any variable
-         */
-        hasVariables: {
-          type: Boolean,
-          readOnly: true,
-          value: false,
-          computed: '_computeHasVariables(hasAppVariables, hasSysVariables)'
+          type: Array
         },
         /**
          * Computed value, true if the element has application variables
          */
         hasAppVariables: {
           type: Boolean,
-          readOnly: true,
+          computed: '_computeHasVars(appVariables.*)',
           value: false
         },
         /**
@@ -224,114 +214,42 @@ the License.
          */
         hasSysVariables: {
           type: Boolean,
-          readOnly: true,
+          computed: '_computeHasVars(systemVariables.*)',
           value: false
         }
       };
     }
 
-    constructor() {
-      super();
-      this._varsChanged = this._varsChanged.bind(this);
-      this._varDeletedHandler = this._varDeletedHandler.bind(this);
-      this._varUpdateHandler = this._varUpdateHandler.bind(this);
+    static get observers() {
+      return [
+        '_computeVarsData(variables.*)'
+      ];
     }
 
-    connectedCallback() {
-      super.connectedCallback();
-      window.addEventListener('variables-list-changed', this._varsChanged);
-      window.addEventListener('variable-deleted', this._varDeletedHandler);
-      window.addEventListener('variable-updated', this._varUpdateHandler);
-
-      if (!this.variables) {
-        Polymer.RenderStatus.afterNextRender(this, () => {
-          this.refresh();
-        });
-      }
-    }
-
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      window.removeEventListener('variables-list-changed', this._varsChanged);
-      window.removeEventListener('variable-deleted', this._varDeletedHandler);
-      window.removeEventListener('variable-updated', this._varUpdateHandler);
-    }
-
-    /**
-     * Refreshes the list of variables on demand.
-     *
-     * @return {[type]} [description]
-     */
-    refresh() {
-      this._refreshVariables();
-      this._refreshEnvironment();
-    }
-    /**
-    * Dispatches `variable-list` custom event to ask variables manager
-    * for list of variables.
-     */
-    _refreshVariables() {
-      const e = new CustomEvent('variable-list', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {}
-      });
-      this.dispatchEvent(e);
-      if (!e.defaultPrevented) {
-        return;
-      }
-      this._processVariablesList(e.detail.value);
-    }
-    /**
-     * Dispatches `environment-current` custom event to ask variables manager
-     * for current environment.
-     */
-    _refreshEnvironment() {
-      const e = new CustomEvent('environment-current', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {}
-      });
-      this.dispatchEvent(e);
-      this.set('environment', e.detail.value);
-    }
-    /**
-     * Processes list of variables.
-     * Sets `variables` and `systemVariables` properties.
-     *
-     * @param {Array} variables List of variables received from the variables
-     * manager.
-     */
-    _processVariablesList(variables) {
-      if (!variables || !variables.length) {
-        this.set('variables', variables);
-        this.set('systemVariables', variables);
-        return;
-      }
-      variables = variables.map((item) => Object.assign({}, item));
+    _computeVarsData(record) {
+      const appVars = [];
       const sysVars = [];
-      for (let i = variables.length - 1; i >= 0; i--) {
-        const copy = Object.assign({}, variables[i]);
-        if (copy.sysVar) {
-          sysVars.push(copy);
-          variables.splice(i, 1);
-        } else {
-          variables[i] = copy;
+      const vars = record && record.base;
+      if (vars && vars.length) {
+        for (let i = vars.length - 1; i >= 0; i--) {
+          const item = Object.assign({}, vars[i]);
+          if (vars[i].sysVar) {
+            sysVars[sysVars.length] = item;
+          } else {
+            appVars[appVars.length] = item;
+          }
         }
       }
-      const variablesResult = variables.length ? variables : undefined;
-      const sysVarsResult = sysVars.length ? sysVars : undefined;
-      this.set('variables', variablesResult);
-      this.set('systemVariables', sysVarsResult);
+      this.systemVariables = sysVars.length ? sysVars : undefined;
+      this.appVariables = appVars.length ? appVars : undefined;
     }
 
-    _varsChanged(e) {
-      this._processVariablesList(e.detail.value);
-      this.environment = e.detail.environment;
-    }
-
+    /**
+     * Sort function for dom-repeat for vars
+     * @param {Object} a
+     * @param {Object} b
+     * @return {Number}
+     */
     _varSort(a, b) {
       if (a.enabled === b.enabled) {
         return 0;
@@ -342,48 +260,50 @@ the License.
       return -1;
     }
     /**
-     * Computes value of `hasSysVariables` property.
-     * Sets true if the element has system variables to display.
-     *
-     * @param {?Array} value Application defined variables
+     * Computes value for `has*Variables` properties.
+     * @param {Object} record Polymer's change record
+     * @return {Boolean}
      */
-    _variablesChanged(value) {
-      if (!value || !value.length) {
-        if (this.hasAppVariables) {
-          this._setHasAppVariables(false);
-        }
-      } else {
-        if (!this.hasAppVariables) {
-          this._setHasAppVariables(true);
-        }
-      }
+    _computeHasVars(record) {
+      return !!(record && record.base && record.base.length);
     }
     /**
-     * Computes value of `hasSysVariables` property.
-     * Sets true if the element has system variables to display.
-     *
-     * @param {?Array} value System variables.
+     * Creates a list of application variables only (application + in mem vars)
+     * @param {Object} record Polymer's change record
+     * @return {Array<Object>} A list with filtered out system variables
      */
-    _sysVariablesChanged(value) {
-      if (!value || !value.length) {
-        if (this.hasSysVariables) {
-          this._setHasSysVariables(false);
-        }
-      } else {
-        if (!this.hasSysVariables) {
-          this._setHasSysVariables(true);
-        }
+    _computeAppVars(record) {
+      const vars = record && record.base;
+      if (!vars || !vars.length) {
+        return;
       }
+      const result = [];
+      for (let i = vars.length - 1; i >= 0; i--) {
+        if (vars[i].sysVar) {
+          continue;
+        }
+        result[result.length] = Object.assign({}, vars[i]);
+      }
+      return result;
     }
     /**
-     * Computes if the element has any variables to display.
-     *
-     * @param {Boolean} appVars Value of `hasAppVariables` property
-     * @param {Boolean} sysVars Value of `hasSysVariables` property
-     * @return {Boolean} True if either app or system variables are set.
+     * Creates a list of system variables.
+     * @param {Object} record Polymer's change record
+     * @return {Array<Object>} A list with system variables only.
      */
-    _computeHasVariables(appVars, sysVars) {
-      return appVars || sysVars;
+    _computeSysVars(record) {
+      const vars = record && record.base;
+      if (!vars || !vars.length) {
+        return;
+      }
+      const result = [];
+      for (let i = vars.length - 1; i >= 0; i--) {
+        if (!vars[i].sysVar) {
+          continue;
+        }
+        result[result.length] = Object.assign({}, vars[i]);
+      }
+      return result;
     }
 
     _fireEdit() {
@@ -392,43 +312,6 @@ the License.
         composed: true
       }));
       this.opened = false;
-    }
-
-    // Handler for the `variable-deleted` event.
-    _varDeletedHandler(e) {
-      if (e.cancelable || !this.variables) {
-        return;
-      }
-      const id = e.detail.value;
-      const index = this.variables.findIndex((item) => item._id === id);
-      if (!~index) {
-        return;
-      }
-      this.splice('variables', index, 1);
-    }
-
-    // Handler for the `variable-updated` event.
-    _varUpdateHandler(e) {
-      if (e.cancelable) {
-        return;
-      }
-      const env = e.detail.value;
-      if (!this.variables) {
-        this.set('variables', [env]);
-        return;
-      }
-      let index = this.variables.findIndex((item) => item._id === env._id);
-      if (index === -1) {
-        // Here's a trick. When adding new variable it is not saved yet
-        // and we should check for a var with the same name.
-        index = this.variables.findIndex((item) => (!item._id && item.variable === env.variable));
-        if (index === -1) {
-          this.push('variables', env);
-        }
-      }
-      if (~index) {
-        this.set(['variables', index], env);
-      }
     }
     /**
      * Fired when the user requested to edit variables for selected environemnt.
