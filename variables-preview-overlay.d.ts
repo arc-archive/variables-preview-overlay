@@ -15,18 +15,21 @@
 /// <reference path="../paper-styles/shadow.d.ts" />
 /// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
 /// <reference path="../paper-button/paper-button.d.ts" />
+/// <reference path="../variables-consumer-mixin/variables-consumer-mixin.d.ts" />
 
 declare namespace UiElements {
 
   /**
-   * An element to display quick preview of variables values for selected
+   * An element to display quick preview of variables values for current
    * environment.
    *
    * The element works with
    * [variables-manager](https://github.com/advanced-rest-client/variables-manager/)
    * that provides the events API to get information about environemnts and variables.
+   * It also requires `advanced-rest-client/arc-models/variables-model` as an
+   * access to the data store.
    *
-   * The element displays an overlay controlled by `Polymer.IronOverlayBehavior`
+   * The element renders an overlay controlled by `Polymer.IronOverlayBehavior`
    * with list of variables associated with current environment.
    *
    * It listens for `variables-list-changed` custom event dispatched by the
@@ -57,29 +60,18 @@ declare namespace UiElements {
    */
   class VariablesPreviewOverlay extends
     Polymer.IronOverlayBehavior(
-    Polymer.Element) {
+    ArcComponents.VariablesConsumerMixin(
+    Polymer.Element)) {
 
     /**
-     * List of variables to display on the list.
-     * It is updated automatically for `variables-list-changed` event fired
-     * by the `variables-manager` element.
+     * List of application variables (stored in the data store + in memory)
      */
-    variables: any[]|null|undefined;
+    appVariables: Array<object|null>|null;
 
     /**
      * List of system variables to display.
      */
-    systemVariables: any[]|null|undefined;
-
-    /**
-     * Currently selected environment name
-     */
-    environment: string|null|undefined;
-
-    /**
-     * Computed value, true if the environment has any variable
-     */
-    readonly hasVariables: boolean|null|undefined;
+    systemVariables: Array<object|null>|null;
 
     /**
      * Computed value, true if the element has application variables
@@ -90,74 +82,36 @@ declare namespace UiElements {
      * Computed value, true if the element has system variables
      */
     readonly hasSysVariables: boolean|null|undefined;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
+    _computeVarsData(record: any): void;
 
     /**
-     * Refreshes the list of variables on demand.
+     * Sort function for dom-repeat for vars
+     */
+    _varSort(a: object|null, b: object|null): Number|null;
+
+    /**
+     * Computes value for `has*Variables` properties.
      *
-     * @returns [description]
+     * @param record Polymer's change record
      */
-    refresh(): any;
+    _computeHasVars(record: object|null): Boolean|null;
 
     /**
-     * Dispatches `variable-list` custom event to ask variables manager
-     * for list of variables.
-     */
-    _refreshVariables(): void;
-
-    /**
-     * Dispatches `environment-current` custom event to ask variables manager
-     * for current environment.
-     */
-    _refreshEnvironment(): void;
-
-    /**
-     * Processes list of variables.
-     * Sets `variables` and `systemVariables` properties.
+     * Creates a list of application variables only (application + in mem vars)
      *
-     * @param variables List of variables received from the variables
-     * manager.
+     * @param record Polymer's change record
+     * @returns A list with filtered out system variables
      */
-    _processVariablesList(variables: any[]|null): void;
-    _varsChanged(e: any): void;
-    _varSort(a: any, b: any): any;
+    _computeAppVars(record: object|null): Array<object|null>|null;
 
     /**
-     * Computes value of `hasSysVariables` property.
-     * Sets true if the element has system variables to display.
+     * Creates a list of system variables.
      *
-     * @param value Application defined variables
+     * @param record Polymer's change record
+     * @returns A list with system variables only.
      */
-    _variablesChanged(value: any[]|null): void;
-
-    /**
-     * Computes value of `hasSysVariables` property.
-     * Sets true if the element has system variables to display.
-     *
-     * @param value System variables.
-     */
-    _sysVariablesChanged(value: any[]|null): void;
-
-    /**
-     * Computes if the element has any variables to display.
-     *
-     * @param appVars Value of `hasAppVariables` property
-     * @param sysVars Value of `hasSysVariables` property
-     * @returns True if either app or system variables are set.
-     */
-    _computeHasVariables(appVars: Boolean|null, sysVars: Boolean|null): Boolean|null;
+    _computeSysVars(record: object|null): Array<object|null>|null;
     _fireEdit(): void;
-
-    /**
-     * Handler for the `variable-deleted` event.
-     */
-    _varDeletedHandler(e: any): void;
-
-    /**
-     * Handler for the `variable-updated` event.
-     */
-    _varUpdateHandler(e: any): void;
   }
 }
 
