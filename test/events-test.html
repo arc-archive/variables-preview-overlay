@@ -35,10 +35,15 @@
 
       let element;
       let element2;
-      setup(function() {
+      setup(function(done) {
         const fix = fixture('basic');
         element = fix[0];
         element2 = fix[1];
+        flush(() => {
+          Polymer.RenderStatus.afterNextRender(element, () => {
+            done();
+          });
+        });
       });
 
       function setupVars() {
