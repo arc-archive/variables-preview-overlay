@@ -79,13 +79,13 @@ the License.
     }
 
     .var-name {
-      color: rgba(0, 0, 0, .54);
+      color: var(--variables-preview-overlay-var-name-color, rgba(0, 0, 0, .54));
       margin-right: 16px;
       display: inline-block;
     }
 
     .var-value {
-      color: rgba(0, 0, 0, .87);
+      color: var(--variables-preview-overlay-var-value-color, rgba(0, 0, 0, .87));
       display: inline-block;
     }
 
@@ -173,6 +173,8 @@ the License.
    * `--variables-preview-overlay-background-color` | Background color of the oberlay | `inherit`
    * `--variables-preview-overlay-dialog-color` | Overlay foreground color | `--primary-text-color`
    * `--variables-preview-overlay-title` | Mixin applied to the title element | `{}`
+   * `--variables-preview-overlay-var-name-color` | Color of a variable name label | `rgba(0, 0, 0, .54)`
+   * `--variables-preview-overlay-var-value-color` | Color of a variable value label | `rgba(0, 0, 0, .87)`
    *
    * @memberof UiElements
    * @customElement
@@ -184,7 +186,9 @@ the License.
   class VariablesPreviewOverlay extends
     ArcComponents.VariablesConsumerMixin(
       Polymer.mixinBehaviors([Polymer.IronOverlayBehavior], Polymer.Element)) {
-    static get is() {return 'variables-preview-overlay';}
+    static get is() {
+      return 'variables-preview-overlay';
+    }
     static get properties() {
       return {
         /**
