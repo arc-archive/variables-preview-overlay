@@ -122,6 +122,122 @@
         assert.isTrue(fired);
       });
     });
+
+    suite('_varSort()', () => {
+      let element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Returns 0 when a.enabled === b.enabled', () => {
+        const result = element._varSort({
+          enabled: true
+        }, {
+          enabled: true
+        });
+        assert.equal(result, 0);
+      });
+
+      test('Returns 1 when a.enabled < b.enabled', () => {
+        const result = element._varSort({
+          enabled: false
+        }, {
+          enabled: true
+        });
+        assert.equal(result, 1);
+      });
+
+      test('Returns -1 when a.enabled > b.enabled', () => {
+        const result = element._varSort({
+          enabled: true
+        }, {
+          enabled: false
+        });
+        assert.equal(result, -1);
+      });
+    });
+
+    suite('_computeAppVars()', () => {
+      let element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Returns undefined when no record', () => {
+        const result = element._computeAppVars();
+        assert.isUndefined(result);
+      });
+
+      test('Returns undefined when no base', () => {
+        const result = element._computeAppVars({});
+        assert.isUndefined(result);
+      });
+
+      test('Returns undefined when base is empty', () => {
+        const result = element._computeAppVars({base: []});
+        assert.isUndefined(result);
+      });
+
+      test('Returns list of variables', () => {
+        const vars = [{name: 'test'}];
+        const result = element._computeAppVars({base: vars});
+        assert.deepEqual(result, vars);
+      });
+
+      test('Iteams are a copy', () => {
+        const vars = [{name: 'test'}];
+        const result = element._computeAppVars({base: vars});
+        vars[0].name = 'other-test';
+        assert.equal(result[0].name, 'test');
+      });
+
+      test('Filters out system variables', () => {
+        const vars = [{name: 'test'}, {name: 'sys', sysVar: true}];
+        const result = element._computeAppVars({base: vars});
+        assert.deepEqual(result, [{name: 'test'}]);
+      });
+    });
+
+    suite('_computeSysVars()', () => {
+      let element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Returns undefined when no record', () => {
+        const result = element._computeSysVars();
+        assert.isUndefined(result);
+      });
+
+      test('Returns undefined when no base', () => {
+        const result = element._computeSysVars({});
+        assert.isUndefined(result);
+      });
+
+      test('Returns undefined when base is empty', () => {
+        const result = element._computeSysVars({base: []});
+        assert.isUndefined(result);
+      });
+
+      test('Returns list of variables', () => {
+        const vars = [{name: 'test', sysVar: true}];
+        const result = element._computeSysVars({base: vars});
+        assert.deepEqual(result, vars);
+      });
+
+      test('Iteams are a copy', () => {
+        const vars = [{name: 'test', sysVar: true}];
+        const result = element._computeSysVars({base: vars});
+        vars[0].name = 'other-test';
+        assert.equal(result[0].name, 'test');
+      });
+
+      test('Filters out other variables', () => {
+        const vars = [{name: 'test'}, {name: 'sys', sysVar: true}];
+        const result = element._computeSysVars({base: vars});
+        assert.deepEqual(result, [{name: 'sys', sysVar: true}]);
+      });
+    });
     </script>
   </body>
 </html>
