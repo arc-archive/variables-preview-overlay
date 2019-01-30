@@ -99,3 +99,27 @@
 
 
 
+## [2.0.1](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.8...2.0.1) (2019-01-30)
+
+
+### Breaking
+
+* Updating component to Polymer 2 ([99e937561eea58ec304bc60b1c1b2240fcf1cb27](https://github.com/advanced-rest-client/variables-preview-overlay/commit/99e937561eea58ec304bc60b1c1b2240fcf1cb27))
+
+### Docs
+
+* Updating docs ([e597b77964130f58f69aa631e38ddf59237e5390](https://github.com/advanced-rest-client/variables-preview-overlay/commit/e597b77964130f58f69aa631e38ddf59237e5390))
+* Updating polymer docs ([5c0b1a4aac95a35cb63e8b88f430c29c975d193e](https://github.com/advanced-rest-client/variables-preview-overlay/commit/5c0b1a4aac95a35cb63e8b88f430c29c975d193e))
+
+### New
+
+* Adding test coverage ([4d8225ce8e00807d2a341cc58e8881bd0d814794](https://github.com/advanced-rest-client/variables-preview-overlay/commit/4d8225ce8e00807d2a341cc58e8881bd0d814794))
+
+### Update
+
+* Adding edit button to the header ([fd908c3d28d53abe55ae9c4b18d926c797b3d85c](https://github.com/advanced-rest-client/variables-preview-overlay/commit/fd908c3d28d53abe55ae9c4b18d926c797b3d85c))
+* Adding stling API for variable labels colors ([ddc5166c289754d4f52654350422b279559f9ac5](https://github.com/advanced-rest-client/variables-preview-overlay/commit/ddc5166c289754d4f52654350422b279559f9ac5))
+* Updating style for list ([df62824db24616cd5dbb8b03d130993bc342a46f](https://github.com/advanced-rest-client/variables-preview-overlay/commit/df62824db24616cd5dbb8b03d130993bc342a46f))
+
+
+
