@@ -32,11 +32,16 @@ the License.
       @apply --variables-preview-overlay;
     }
 
+    header {
+      @apply --layout-horizontal;
+    }
+
     h2 {
       position: relative;
       margin-top: 20px;
       padding: 0 24px;
 
+      @apply --layout-flex;
       @apply --arc-font-title;
       @apply --variables-preview-overlay-title;
     }
@@ -103,8 +108,14 @@ the License.
     </style>
     <div class="container">
       <div class="content">
-        <template is="dom-if" if="[[hasAppVariables]]">
+        <header>
           <h2>Variables for [[environment]]</h2>
+          <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+        </header>
+        <template is="dom-if" if="[[!hasAppVariables]]">
+          <p class="no-vars">There's no variables for environment: [[environment]]</p>
+        </template>
+        <template is="dom-if" if="[[hasAppVariables]]">
           <ul class="list app-vars" aria-role="list">
             <template is="dom-repeat" items="[[appVariables]]" sort="_varSort" observe="enabled" id="repeater">
               <li data-enabled$="[[item.enabled]]" aria-role="listitem">
@@ -124,9 +135,6 @@ the License.
               </li>
             </template>
           </ul>
-        </template>
-        <template is="dom-if" if="[[!hasVariables]]">
-          <p class="no-vars">Variables list is empty for this environment</p>
         </template>
       </div>
       <div class="buttons">
