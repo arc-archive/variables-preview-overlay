@@ -72,7 +72,6 @@ the License.
 
     .list {
       list-style: none;
-      word-break: break-all;
     }
 
     .list,
@@ -83,15 +82,24 @@ the License.
       min-width: 300px;
     }
 
+    .list li {
+      display: flex;
+      word-break: normal;
+      user-select: text;
+      cursor: text;
+    }
+
     .var-name {
       color: var(--variables-preview-overlay-var-name-color, rgba(0, 0, 0, .54));
       margin-right: 16px;
-      display: inline-block;
+      min-width: 80px;
     }
 
     .var-value {
       color: var(--variables-preview-overlay-var-value-color, rgba(0, 0, 0, .87));
       display: inline-block;
+      word-break: break-all;
+      flex: 1;
     }
 
     li span {
