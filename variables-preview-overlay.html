@@ -65,9 +65,12 @@ the License.
       position: relative;
       padding: 8px 8px 8px 24px;
       margin: 0;
-      color: var(--variables-preview-overlay-button-color, var(--primary-color));
       @apply --layout-horizontal;
       @apply --layout-end-justified;
+    }
+
+    .buttons .main-action {
+      color: var(--variables-preview-overlay-button-color, var(--primary-color));
     }
 
     .list {
@@ -118,7 +121,7 @@ the License.
       <div class="content">
         <header>
           <h2>Variables for [[environment]]</h2>
-          <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+          <paper-button on-click="_fireEdit">Edit variables</paper-button>
         </header>
         <template is="dom-if" if="[[!hasAppVariables]]">
           <p class="no-vars">There's no variables for environment: [[environment]]</p>
@@ -128,7 +131,7 @@ the License.
             <template is="dom-repeat" items="[[appVariables]]" sort="_varSort" observe="enabled" id="repeater">
               <li data-enabled$="[[item.enabled]]" aria-role="listitem">
                 <span class="var-name">[[item.variable]]</span>
-                <span class="var-value">[[item.value]]</span>
+                <span class="var-value">[[_computeValueLabel(item.value, maskedValues)]]</span>
               </li>
             </template>
           </ul>
@@ -139,14 +142,15 @@ the License.
             <template is="dom-repeat" items="[[systemVariables]]">
               <li aria-role="listitem" data-enabled>
                 <span class="var-name">[[item.variable]]</span>
-                <span class="var-value">[[item.value]]</span>
+                <span class="var-value">[[_computeValueLabel(item.value, maskedValues)]]</span>
               </li>
             </template>
           </ul>
         </template>
       </div>
       <div class="buttons">
-        <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+        <paper-button on-click="_toggleValues">Toggle visibility</paper-button>
+        <paper-button on-click="_fireEdit" class="main-action">Edit variables</paper-button>
       </div>
     </div>
   </template>
@@ -236,7 +240,9 @@ the License.
           type: Boolean,
           computed: '_computeHasVars(systemVariables.*)',
           value: false
-        }
+        },
+
+        maskedValues: Boolean
       };
     }
 
@@ -332,6 +338,22 @@ the License.
         composed: true
       }));
       this.opened = false;
+    }
+
+    _computeValueLabel(value, maskedValues) {
+      if (!value) {
+        return;
+      }
+      if (maskedValues) {
+        const len = value.length;
+        const arr = new Array(len);
+        return arr.fill('•', 0, len).join('');
+      }
+      return value;
+    }
+
+    _toggleValues() {
+      this.maskedValues = !this.maskedValues;
     }
     /**
      * Fired when the user requested to edit variables for selected environemnt.
