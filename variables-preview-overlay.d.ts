@@ -88,6 +88,7 @@ declare namespace UiElements {
      * Computed value, true if the element has system variables
      */
     readonly hasSysVariables: boolean|null|undefined;
+    maskedValues: boolean|null|undefined;
     _computeVarsData(record: any): void;
 
     /**
@@ -118,6 +119,8 @@ declare namespace UiElements {
      */
     _computeSysVars(record: object|null): Array<object|null>|null;
     _fireEdit(): void;
+    _computeValueLabel(value: any, maskedValues: any): any;
+    _toggleValues(): void;
   }
 }
 
