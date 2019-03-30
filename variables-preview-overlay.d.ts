@@ -5,21 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   variables-preview-overlay.html
+ *   variables-preview-overlay.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/legacy/class.d.ts" />
-/// <reference path="../polymer/types/lib/utils/render-status.d.ts" />
-/// <reference path="../iron-overlay-behavior/iron-overlay-behavior.d.ts" />
-/// <reference path="../paper-styles/shadow.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../variables-consumer-mixin/variables-consumer-mixin.d.ts" />
 
 declare namespace UiElements {
 
@@ -65,9 +56,8 @@ declare namespace UiElements {
    * `--variables-preview-overlay-var-value-color` | Color of a variable value label | `rgba(0, 0, 0, .87)`
    */
   class VariablesPreviewOverlay extends
-    Polymer.IronOverlayBehavior(
-    ArcComponents.VariablesConsumerMixin(
-    Object)) {
+    VariablesConsumerMixin(
+    Object) {
 
     /**
      * List of application variables (stored in the data store + in memory)
@@ -88,6 +78,11 @@ declare namespace UiElements {
      * Computed value, true if the element has system variables
      */
     readonly hasSysVariables: boolean|null|undefined;
+
+    /**
+     * When set it renders values masked under non-meaningful character
+     */
+    maskedValues: boolean|null|undefined;
     _computeVarsData(record: any): void;
 
     /**
@@ -118,9 +113,16 @@ declare namespace UiElements {
      */
     _computeSysVars(record: object|null): Array<object|null>|null;
     _fireEdit(): void;
+    _computeValueLabel(value: any, maskedValues: any): any;
+    _toggleValues(): void;
   }
 }
 
-interface HTMLElementTagNameMap {
-  "variables-preview-overlay": UiElements.VariablesPreviewOverlay;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "variables-preview-overlay": UiElements.VariablesPreviewOverlay;
+  }
 }
+
+export {};

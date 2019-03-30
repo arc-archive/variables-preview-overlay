@@ -1,45 +1,28 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html>
+
+<head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
   <title>variables-preview-overlay demo</title>
   <script src="../../../@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script src="../../../web-animations-js/web-animations-next.min.js"></script>
+  <script src="../../../pouchdb/dist/pouchdb.js"></script>
+
   <script type="module" src="../../../@polymer/polymer/lib/elements/dom-bind.js"></script>
   <script type="module" src="../../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
-  <script type="module" src="../../../app-pouchdb/pouchdb.js"></script>
-  <script type="module" src="../../../arc-models/variables-model.js"></script>
-  <script type="module" src="../../../@polymer/neon-animation/web-animations.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/arc-models/variables-model.js"></script>
   <script type="module" src="../../../@polymer/paper-button/paper-button.js"></script>
-  <script type="module" src="../../../variables-editor/variables-editor.js"></script>
-  <script type="module" src="../../../variables-manager/variables-manager.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/variables-editor/variables-editor.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/variables-manager/variables-manager.js"></script>
+  <script type="module" src="../../../@advanced-rest-client/arc-electron-default-theme/arc-electron-default-theme.js"></script>
   <script type="module" src="../variables-preview-overlay.js"></script>
-  <script type="module">
-const $_documentContainer = document.createElement('template');
 
-$_documentContainer.innerHTML = `<custom-style>
+  <custom-style>
     <style is="custom-style" include="demo-pages-shared-styles">
-    :root {
+    html {
       --primary-color: #00A2DF;
-      --action-button: {
-        background-color: var(--primary-color);
-        background-image: none;
-        color: white;
-        transition: background-color 300ms linear;
-      };
-
-      --action-button-hover: {
-        background-color: #04b3f5;
-        background-image: none;
-        color: white;
-      };
-
-      --arc-font-body1: {
-        @apply --paper-font-body1;
-      };
-
-      --arc-font-title: {
-        @apply --paper-font-title;
-      };
     }
 
     .centered {
@@ -50,25 +33,19 @@ $_documentContainer.innerHTML = `<custom-style>
       background-color: #fff;
     }
     </style>
-  </custom-style>`;
-
-document.body.appendChild($_documentContainer.content);
-</script>
+  </custom-style>
 </head>
-<body unresolved="">
-  <script type="module">
-const $_documentContainer = document.createElement('template');
 
-$_documentContainer.innerHTML = `<div class="centered">
-    <h3>The \`variables-preview-overlay\`</h3>
+<body unresolved="">
+  <div class="centered">
+    <h3>The `variables-preview-overlay`</h3>
     <dom-bind>
       <template>
         <paper-button id="button">Open overlay</paper-button>
-        <variables-preview-overlay id="overlay" dynamic-align="" horizontal-align="auto" vertical-align="auto"></variables-preview-overlay>
+        <variables-preview-overlay id="overlay" dynamic-align="" horizontal-align="auto" vertical-align="auto" masked-values></variables-preview-overlay>
         <variables-manager></variables-manager>
         <variables-editor></variables-editor>
         <variables-model></variables-model>
-
         <script>
         window.addEventListener('WebComponentsReady', function() {
           const button = document.getElementById('button');
@@ -78,13 +55,10 @@ $_documentContainer.innerHTML = `<div class="centered">
             document.querySelector('variables-preview-overlay').opened = true;
           });
         });
-        &lt;/script>
+        </script>
       </template>
     </dom-bind>
-  </div>`;
+  </div>
+</body>
 
-document.body.appendChild($_documentContainer.content);
-</script>
-
-
-</body></html>
+</html>

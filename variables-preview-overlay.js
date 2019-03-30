@@ -11,16 +11,12 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { PolymerElement } from '../../@polymer/polymer/polymer-element.js';
-
-import { mixinBehaviors } from '../../@polymer/polymer/lib/legacy/class.js';
-import '../../@polymer/polymer/lib/utils/render-status.js';
-import { IronOverlayBehavior } from '../../@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
-import '../../@polymer/paper-styles/shadow.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {mixinBehaviors} from '../../@polymer/polymer/lib/legacy/class.js';
+import {IronOverlayBehavior} from '../../@polymer/iron-overlay-behavior/iron-overlay-behavior.js';
+import {VariablesConsumerMixin} from '../../@advanced-rest-client/variables-consumer-mixin/variables-consumer-mixin.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
 import '../../@polymer/paper-button/paper-button.js';
-import '../../variables-consumer-mixin/variables-consumer-mixin.js';
-import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
 /**
  * An element to display quick preview of variables values for current
  * environment.
@@ -66,12 +62,11 @@ import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
  * @customElement
  * @polymer
  * @demo demo/index.html
- * @appliesMixin Polymer.IronOverlayBehavior
- * @appliesMixin ArcComponents.VariablesConsumerMixin
+ * @polymerBehavior Polymer.IronOverlayBehavior
+ * @appliesMixin VariablesConsumerMixin
  */
 class VariablesPreviewOverlay extends
-  ArcComponents.VariablesConsumerMixin(
-    mixinBehaviors([IronOverlayBehavior], PolymerElement)) {
+  VariablesConsumerMixin(mixinBehaviors([IronOverlayBehavior], PolymerElement)) {
   static get template() {
     return html`
     <style>
@@ -80,13 +75,22 @@ class VariablesPreviewOverlay extends
       background-color: var(--variables-preview-overlay-background-color, inherit);
       color: var(--variables-preview-overlay-color, var(--primary-text-color));
 
-      @apply --arc-font-body1;
-      @apply --shadow-elevation-16dp;
-      @apply --variables-preview-overlay;
+      font-size: var(--arc-font-body1-font-size);
+      font-weight: var(--arc-font-body1-font-weight);
+      line-height: var(--arc-font-body1-line-height);
+
+      box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+                  0  6px 30px 5px rgba(0, 0, 0, 0.12),
+                  0  8px 10px -5px rgba(0, 0, 0, 0.4);
     }
 
     header {
-      @apply --layout-horizontal;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
     }
 
     h2 {
@@ -94,38 +98,64 @@ class VariablesPreviewOverlay extends
       margin-top: 20px;
       padding: 0 24px;
 
-      @apply --layout-flex;
-      @apply --arc-font-title;
-      @apply --variables-preview-overlay-title;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
+
+      white-space: var(--arc-font-nowrap-white-space);
+      overflow: var(--arc-font-nowrap-overflow);
+      text-overflow: var(--arc-font-nowrap-text-overflow);
+      font-size: var(--arc-font-title-font-size);
+      font-weight: var(--arc-font-title-font-weight);
+      line-height: var(--arc-font-title-line-height);
     }
 
     .container {
-      @apply --layout-vertical;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: column;
+      -webkit-flex-direction: column;
+      flex-direction: column;
       max-height: inherit;
     }
 
     .content {
       overflow: auto;
-      @apply --layout-flex;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
       max-height: inherit;
       height: 100vh;
       flex-basis: initial;
       -webkit-flex-basis: initial;
-      @apply --variables-preview-overlay-container;
     }
 
     .buttons {
       position: relative;
       padding: 8px 8px 8px 24px;
       margin: 0;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      -ms-flex-pack: end;
+      -webkit-justify-content: flex-end;
+      justify-content: flex-end;
+    }
+
+    .buttons .main-action {
       color: var(--variables-preview-overlay-button-color, var(--primary-color));
-      @apply --layout-horizontal;
-      @apply --layout-end-justified;
     }
 
     .list {
       list-style: none;
-      word-break: break-all;
     }
 
     .list,
@@ -136,15 +166,24 @@ class VariablesPreviewOverlay extends
       min-width: 300px;
     }
 
+    .list li {
+      display: flex;
+      word-break: normal;
+      user-select: text;
+      cursor: text;
+    }
+
     .var-name {
       color: var(--variables-preview-overlay-var-name-color, rgba(0, 0, 0, .54));
       margin-right: 16px;
-      display: inline-block;
+      min-width: 80px;
     }
 
     .var-value {
       color: var(--variables-preview-overlay-var-value-color, rgba(0, 0, 0, .87));
       display: inline-block;
+      word-break: break-all;
+      flex: 1;
     }
 
     li span {
@@ -163,7 +202,7 @@ class VariablesPreviewOverlay extends
       <div class="content">
         <header>
           <h2>Variables for [[environment]]</h2>
-          <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+          <paper-button on-click="_fireEdit">Edit variables</paper-button>
         </header>
         <template is="dom-if" if="[[!hasAppVariables]]">
           <p class="no-vars">There's no variables for environment: [[environment]]</p>
@@ -173,7 +212,7 @@ class VariablesPreviewOverlay extends
             <template is="dom-repeat" items="[[appVariables]]" sort="_varSort" observe="enabled" id="repeater">
               <li data-enabled\$="[[item.enabled]]" aria-role="listitem">
                 <span class="var-name">[[item.variable]]</span>
-                <span class="var-value">[[item.value]]</span>
+                <span class="var-value">[[_computeValueLabel(item.value, maskedValues)]]</span>
               </li>
             </template>
           </ul>
@@ -184,38 +223,31 @@ class VariablesPreviewOverlay extends
             <template is="dom-repeat" items="[[systemVariables]]">
               <li aria-role="listitem" data-enabled="">
                 <span class="var-name">[[item.variable]]</span>
-                <span class="var-value">[[item.value]]</span>
+                <span class="var-value">[[_computeValueLabel(item.value, maskedValues)]]</span>
               </li>
             </template>
           </ul>
         </template>
       </div>
       <div class="buttons">
-        <paper-button on-tap="_fireEdit">Edit variables</paper-button>
+        <paper-button on-click="_toggleValues">Toggle visibility</paper-button>
+        <paper-button on-click="_fireEdit">Edit variables</paper-button>
       </div>
-    </div>
-`;
+    </div>`;
   }
 
-  static get is() {
-    return 'variables-preview-overlay';
-  }
   static get properties() {
     return {
       /**
        * List of application variables (stored in the data store + in memory)
        * @type {Array<Object>}
        */
-      appVariables: {
-        type: Array
-      },
+      appVariables: Array,
       /**
        * List of system variables to display.
        * @type {Array<Object>}
        */
-      systemVariables: {
-        type: Array
-      },
+      systemVariables: Array,
       /**
        * Computed value, true if the element has application variables
        */
@@ -231,7 +263,11 @@ class VariablesPreviewOverlay extends
         type: Boolean,
         computed: '_computeHasVars(systemVariables.*)',
         value: false
-      }
+      },
+      /**
+       * When set it renders values masked under non-meaningful character
+       */
+      maskedValues: Boolean
     };
   }
 
@@ -328,10 +364,26 @@ class VariablesPreviewOverlay extends
     }));
     this.opened = false;
   }
+
+  _computeValueLabel(value, maskedValues) {
+    if (!value) {
+      return;
+    }
+    if (maskedValues) {
+      const len = value.length;
+      const arr = new Array(len);
+      return arr.fill('•', 0, len).join('');
+    }
+    return value;
+  }
+
+  _toggleValues() {
+    this.maskedValues = !this.maskedValues;
+  }
   /**
    * Fired when the user requested to edit variables for selected environemnt.
    *
    * @event open-variables-editor
    */
 }
-window.customElements.define(VariablesPreviewOverlay.is, VariablesPreviewOverlay);
+window.customElements.define('variables-preview-overlay', VariablesPreviewOverlay);

@@ -243,6 +243,40 @@
         assert.deepEqual(result, [{name: 'sys', sysVar: true}]);
       });
     });
+
+    suite('_computeValueLabel()', () => {
+      let element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Returns undefined when no argument', () => {
+        const result = element._computeValueLabel();
+        assert.isUndefined(result);
+      });
+
+      test('Returns string when no maskedValues', () => {
+        const result = element._computeValueLabel('test', false);
+        assert.equal(result, 'test');
+      });
+
+      test('Returns masked value', () => {
+        const result = element._computeValueLabel('test value', true);
+        assert.equal(result, '••••••••••');
+      });
+    });
+
+    suite('_toggleValues()', () => {
+      let element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('Toggles maskedValues', () => {
+        element._toggleValues();
+        assert.isTrue(element.maskedValues);
+      });
+    });
     </script>
   </body>
 </html>
