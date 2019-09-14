@@ -6,15 +6,8 @@
 
 ## &lt;variables-preview-overlay&gt;
 
-An element to display quick preview of variables values for selected environment.
-
-```html
-<variables-preview-overlay></variables-preview-overlay>
-```
-
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
+An element to render an overlay with application and system variables (if applicable).
+It uses `VariablesPreviewOverlay` to manage list of variable and works with `variables-manager` and `variables-model` to get information about current environment, available environments, and variables.
 
 ## Usage
 
@@ -23,54 +16,53 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/variables-preview-overlay
 ```
 
-### In an html file
-
-```html
-<html>
-  <head>
-    <script type="module">
-      import '@advanced-rest-client/variables-preview-overlay/variables-preview-overlay.js';
-    </script>
-  </head>
-  <body>
-    <variables-preview-overlay></variables-preview-overlay>
-  </body>
-</html>
-```
-
-### In a Polymer 3 element
+### In an LitElement template
 
 ```js
-import {PolymerElement, html} from '@polymer/polymer';
-import '@advanced-rest-client/variables-preview-overlay/variables-preview-overlay.js';
+import { LitElement, html } from 'lit-element';
+import './node_odules/@advanced-rest-client/variables-preview-overlay/variables-preview-overlay.js';
 
-class SampleElement extends PolymerElement {
-  static get template() {
+class SampleElement extends LitElement {
+  render() {
     return html`
-    <variables-preview-overlay></variables-preview-overlay>
+    <variables-preview-overlay
+      maskedvalues
+      ?compatibility="${this.compatibility}"
+      @open-variables-editor="${this._openEditor}"></variables-preview-overlay>
+
+    <variables-manager></variables-manager>
+    <variables-editor hidden></variables-editor>
+    <variables-model></variables-model>
     `;
+  }
+
+  _openEditor() {
+    this.shadowRoot.querySelector('variables-editor').removeAttribute('hidden');
   }
 }
 customElements.define('sample-element', SampleElement);
 ```
 
-### Installation
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/variables-preview-overlay
-cd api-url-editor
+cd variables-preview-overlay
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
 
 ```sh
-polymer serve --npm
-open http://127.0.0.1:<port>/demo/
+npm start
 ```
 
 ### Running the tests
+
 ```sh
-polymer test --npm
+npm test
 ```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
