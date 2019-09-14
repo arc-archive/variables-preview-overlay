@@ -150,3 +150,7 @@
 
 
 
+# [3.0.0](https://github.com/advanced-rest-client/variables-preview-overlay/compare/0.1.8...3.0.0) (2019-09-14)
+
+
+
