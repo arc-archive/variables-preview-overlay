@@ -1,7 +1,7 @@
 {
   "name": "@advanced-rest-client/variables-preview-overlay",
   "description": "An element to display quick preview of variables values for selected environment",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "license": "Apache-2.0",
   "main": "variables-preview-overlay.js",
   "keywords": [
@@ -24,8 +24,8 @@
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@advanced-rest-client/variables-consumer-mixin": "^3.0.0",
     "@advanced-rest-client/arc-overlay-mixin": "^1.0.3",
+    "@advanced-rest-client/variables-consumer-mixin": "^3.0.4",
     "@anypoint-web-components/anypoint-button": "^1.0.10",
     "lit-element": "^2.2.1"
   },

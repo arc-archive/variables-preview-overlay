@@ -102,31 +102,10 @@ export class VariablesPreviewOverlay extends VariablesConsumerMixin(ArcOverlayMi
     return !!(systemVariables && systemVariables.length);
   }
 
-  constructor() {
-    super();
-    this._variablesHandler = this._variablesHandler.bind(this);
-  }
-
-  connectedCallback() {
-    /* istanbul ignore else */
-    if (super.connectedCallback) {
-      super.connectedCallback();
-    }
-    this.addEventListener('variables-changed', this._variablesHandler);
-  }
-
-  disconnectedCallback() {
-    /* istanbul ignore else */
-    if (super.disconnectedCallback) {
-      super.disconnectedCallback();
-    }
-    this.removeEventListener('variables-changed', this._variablesHandler);
-  }
-
-  _variablesHandler(e) {
+  _variablesChanged(vars) {
+    super._variablesChanged(vars);
     const appVars = [];
     const sysVars = [];
-    const vars = e.detail.value;
     if (vars && vars.length) {
       for (let i = vars.length - 1; i >= 0; i--) {
         const item = Object.assign({}, vars[i]);
